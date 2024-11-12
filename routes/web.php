@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 
@@ -21,4 +20,8 @@ Route::group(['namespace' => 'Controllers\Play\Minecraft', 'domain' => 'play.'.C
 
     Route::get('/package/download/{prod}/{build}', 'PackageController@download');
     Route::get('/package/create/{prod}/{ver}', 'PackageController@create');
+});
+
+Route::get('/', function () {
+    return view('root');
 });
