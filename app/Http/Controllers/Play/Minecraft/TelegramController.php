@@ -3,10 +3,14 @@
 namespace Controllers\Play\Minecraft;
 
 use App\Http\Controllers\Controller;
+use Application\Play\Minecraft\PackageApi;
+use Application\Play\Minecraft\ProductionApi;
+use Domain\Play\Minecraft\Repository\PackageRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use Infrastructure\Play\Minecraft\Storage\PackageDriver;
 
 class TelegramController extends Controller
 {
@@ -49,11 +53,39 @@ class TelegramController extends Controller
 
                 case '/me':
                     $this->response(
-                        $this->builder(
-                            "ID: " . $user->id . "\n" .
-                            "Пользователь: " . $user->name . "\n",
-                            $chatId)
+                        $this->withButtons(
+                            $this->builder(
+                                "ID: " . $user->id . "\n" .
+                                "Пользователь: " . $user->name . "\n",
+                                $chatId),
+                            [
+                                ['text' => 'Скачать моды', 'commands' => '/mods']
+                            ]
+                        ),
                     );
+
+                case '/mods':
+                    $this->response(
+                        $this->withButtons(
+                            $this->builder('Выберите сервер', $chatId),
+                            [
+                                ['text' => 'Кибер Казахстан', 'command' => '/mods kz latest'],
+                                ['text' => 'Выживание', 'command' => '/mods survival latest']
+                            ]
+                        )
+                    );
+
+                case '/mods kz latest':
+                    $package_api = new PackageApi();
+                    $production_api = new ProductionApi();
+                    $attachemnt = $package_api->getPackage('kz', 'latest', $production_api);
+                    $this->sendAttachment($chatId, $attachemnt, 'Последние обновление');
+
+                case '/mods survival latest':
+                    $package_api = new PackageApi();
+                    $production_api = new ProductionApi();
+                    $attachemnt = $package_api->getPackage('survival', 'latest', $production_api);
+                    $this->sendAttachment($chatId, $attachemnt, 'Последние обновление');
 
                 default:
                     $this->response(
@@ -78,7 +110,8 @@ class TelegramController extends Controller
         $data = [
             'text' => $text,
             'chat_id' => $chatId,
-            'inline_keyboard' => []
+            'inline_keyboard' => [],
+            'parse_mode' => 'markdown'
         ];
         return $data;
     }
@@ -89,5 +122,14 @@ class TelegramController extends Controller
             $data['inline_keyboard'] = ['text' => $button['text'], 'callback_data' => $button['command']];
         }
         return $data;
+    }
+
+    protected function sendAttachment(int $chatId, $attachment, string $name) : void {
+        Http::post('https://api.telegram.org/bot' . $this->token . '/sendDocument', [
+            'chat_id' => $chatId,
+            'document' => $attachment,
+            'caption' => $name,
+            'parse_mode' => 'HTML'
+        ]);
     }
 }
