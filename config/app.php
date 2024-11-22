@@ -123,5 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'telegram_token' => env('TELEGRAM_TOKEN')
+    'telegram_token' => env('TELEGRAM_TOKEN'),
+    'telegram_broadcast_channel' => env('TELEGRAM_BROADCAST_CHANNEL'),
+    'telegram_broadcast_thread' => env('TELEGRAM_BROADCAST_THREAD')
 ];

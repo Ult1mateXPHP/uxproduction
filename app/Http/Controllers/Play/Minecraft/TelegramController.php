@@ -15,16 +15,38 @@ use Infrastructure\Play\Minecraft\Storage\PackageDriver;
 class TelegramController extends Controller
 {
     private string $token;
+    private string $broadcast_channel;
+    private string $broadcast_thread;
 
     public function __construct()
     {
         $this->token = config('app.telegram_token');
+        $this->broadcast_channel = config('app.telegram_broadcast_channel');
+        $this->broadcast_thread = config('app.telegram_broadcast_thread');
     }
 
     public function webhook() : void {
         Log::info(Http::get('https://api.telegram.org/bot'.$this->token.'/setWebhook', [
             'url' => config('app.url')
         ]));
+    }
+
+    public function broadcast(Request $request) : void {
+        $data = $this->builder($request->input('text'), $this->broadcast_channel);
+        $data['reply_to_message_id'] = $this->broadcast_thread;
+        $this->response($data);
+    }
+
+    public function test_broadcast($text) : void {
+        $data = $this->builder($text, $this->broadcast_channel);
+        $data['reply_to_message_id'] = $this->broadcast_thread;
+        $this->response($data);
+    }
+
+    public function test_message($text, $chatId) {
+        $this->response(
+            $this->builder($text, $chatId)
+        );
     }
 
     public function handler(Request $request) : void
@@ -123,7 +145,6 @@ class TelegramController extends Controller
         $data = [
             'text' => $text,
             'chat_id' => $chatId,
-            'reply_markup' => null,
             'parse_mode' => 'markdown'
         ];
         return $data;

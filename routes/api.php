@@ -21,6 +21,7 @@ Route::group(['namespace' => 'Controllers\Play\Minecraft', 'domain' => 'play.'.C
         return response()->json(['success' => true]);
     });
     Route::post('/bot/handler', 'TelegramController@handler');
+    Route::post('/bot/broadcast', 'TelegramController@broadcast');
 
     Route::get('/production/info/{name}', 'ProductionController@info');
     Route::get('/production/create/{name}/{type}/{ver}', 'ProductionController@create');

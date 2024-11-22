@@ -14,8 +14,6 @@ class SendTelegramMessageCommand extends Command
     public function handle(): void
     {
         $api = new TelegramController();
-        $api->response(
-            $api->builder($this->argument('message'), $this->argument('chatId'))
-        );
+        $api->test_message($this->argument('message'), $this->argument('chatId'));
     }
 }
