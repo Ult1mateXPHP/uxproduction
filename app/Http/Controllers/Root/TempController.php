@@ -2,7 +2,7 @@
 
 namespace Controllers\Root;
 
-use App\Root\Application\TempApi;
+use Application\Root\TempApi;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 

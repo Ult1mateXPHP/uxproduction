@@ -27,7 +27,7 @@ class TelegramController extends Controller
 
     public function webhook() : void {
         Log::info(Http::get('https://api.telegram.org/bot'.$this->token.'/setWebhook', [
-            'url' => config('app.url')
+            'url' => 'play.ultimatex.tech/api/bot/handler'
         ]));
     }
 
@@ -54,24 +54,34 @@ class TelegramController extends Controller
         Log::info('Telegram message', $request->all());
         $text = $request->input('message.text');
         $callback = $request->input('callback_query');
-        $chatId = $request->input('message.from.id');
+
+        if($callback != null) {
+            $chatId = $request->input('callback_query.from.id');
+        } elseif ($text != null) {
+            $chatId = $request->input('message.from.id');
+        } elseif($request->input('my_chat_member') != null) {
+            Log::info('New Group Message');
+        }
 
         $user = User::where('telegram_id', $chatId)->first();
         if ($user) {
-            if(!empty($callback)) {
-                switch ($callback['message']) {
-                    case '/menu':
+            if($callback != null) {
+                Log::info('Callback Proccessing');
+                $chatId = $request->input('callback_query.from.id');
+                switch ($callback['data']) {
+                    case 'menu':
                         $this->response(
                             $this->withButtons(
                                 $this->builder("Меню\nБот сделан с душой Ult1mateXPHP\nUXProduction 2024\nt.me/uxproduction", $chatId),
                                 [
-                                    ['text' => 'Аккаунт', 'command' => '/me'],
-                                    //['text' => 'Обратная связь', 'command' => '/new_ticket']
+                                    ['text' => 'Аккаунт', 'command' => 'me'],
+                                    //['text' => 'Обратная связь', 'command' => 'new_ticket']
                                 ]
                             )
                         );
+                        break;
 
-                    case '/me':
+                    case 'me':
                         $this->response(
                             $this->withButtons(
                                 $this->builder(
@@ -79,33 +89,35 @@ class TelegramController extends Controller
                                     "Пользователь: " . $user->name . "\n",
                                     $chatId),
                                 [
-                                    ['text' => 'Скачать моды', 'commands' => '/mods']
+                                    ['text' => 'Скачать моды', 'command' => 'mods']
                                 ]
                             ),
                         );
+                        break;
 
-                    case '/mods':
+                    case 'mods':
                         $this->response(
                             $this->withButtons(
                                 $this->builder('Выберите сервер', $chatId),
                                 [
-                                    ['text' => 'Кибер Казахстан', 'command' => '/mods kz latest'],
-                                    ['text' => 'Выживание', 'command' => '/mods survival latest']
+                                    ['text' => 'Кибер Казахстан', 'command' => 'mods kz latest'],
+                                    ['text' => 'Выживание', 'command' => 'mods survival latest']
                                 ]
                             )
                         );
+                        break;
 
-                    case '/mods kz latest':
-                        $package_api = new PackageApi();
-                        $production_api = new ProductionApi();
-                        $attachemnt = $package_api->getPackage('kz', 'latest', $production_api);
-                        $this->sendAttachment($chatId, $attachemnt, 'Последние обновление');
+                    case 'mods kz latest':
+                        $this->response(
+                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/kz/latest', $chatId)
+                        );
+                        break;
 
-                    case '/mods survival latest':
-                        $package_api = new PackageApi();
-                        $production_api = new ProductionApi();
-                        $attachemnt = $package_api->getPackage('survival', 'latest', $production_api);
-                        $this->sendAttachment($chatId, $attachemnt, 'Последние обновление');
+                    case 'mods survival latest':
+                        $this->response(
+                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/survival/latest', $chatId)
+                        );
+                        break;
 
                     default:
                         $this->response(
@@ -114,22 +126,24 @@ class TelegramController extends Controller
                 }
             }
 
-            if(!empty($text)) {
+            if($text != null) {
+                Log::info('Message Proccessing');
                 switch ($text) {
                     case '/start':
                         $this->response(
                             $this->withButtons(
                                 $this->builder('Добро пожаловать', $chatId),
                                 [
-                                    ['text' => 'Главное меню', 'command' => '/menu'],
+                                    ['text' => 'Главное меню', 'command' => 'menu'],
                                 ]
                             )
                         );
+                        break;
                 }
             }
         } else {
             $this->response(
-                $this->builder('Вы не авторизованы', $chatId)
+                $this->builder("Вы не авторизованы\nВаш ID: ".$chatId, $chatId)
             );
         }
 
@@ -140,7 +154,7 @@ class TelegramController extends Controller
         Log::info(Http::post('https://api.telegram.org/bot' . $this->token . '/sendMessage', $data)->json());
     }
 
-    public function builder(string $text, string $chatId): array
+    public function builder(string $text, int $chatId): array
     {
         $data = [
             'text' => $text,
@@ -163,11 +177,12 @@ class TelegramController extends Controller
     }
 
     public function sendAttachment(int $chatId, $attachment, string $name) : void {
-        Http::post('https://api.telegram.org/bot' . $this->token . '/sendDocument', [
+        Log::info('Attachment processing');
+        Log::info(Http::post('https://api.telegram.org/bot' . $this->token . '/sendDocument', [
             'chat_id' => $chatId,
             'document' => $attachment,
             'caption' => $name,
             'parse_mode' => 'HTML'
-        ]);
+        ]));
     }
 }

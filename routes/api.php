@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
-use Controllers\Play\Minecraft\TelegramController;
 
 /*
 |--------------------------------------------------------------------------
@@ -10,22 +9,24 @@ use Controllers\Play\Minecraft\TelegramController;
 |--------------------------------------------------------------------------
 */
 
-Route::group(['namespace' => 'App\Root\Controller', 'domain' => Config::get('app.url')], function()
+Route::group(['namespace' => 'Controllers\Root', 'domain' => Config::get('app.url')], function()
 {
+    Route::post('/register', 'AuthController@register');
+
     Route::get('/temp/{filename}', 'TempController@get');
 });
 
 Route::group(['namespace' => 'Controllers\Play\Minecraft', 'domain' => 'play.'.Config::get('app.url')], function() {
-    Route::post('/bot/webhook', function (TelegramController $telegramController) {
-        $telegramController->webhook();
-        return response()->json(['success' => true]);
-    });
+    Route::get('/bot/webhook', 'TelegramController@webhook');
     Route::post('/bot/handler', 'TelegramController@handler');
     Route::post('/bot/broadcast', 'TelegramController@broadcast');
 
     Route::get('/production/info/{name}', 'ProductionController@info');
     Route::get('/production/create/{name}/{type}/{ver}', 'ProductionController@create');
 
+    Route::get('/package/download/', function () {
+        return response(null, 400);
+    })->name('package.download.reference');
     Route::get('/package/download/{prod}/{build}', 'PackageController@download');
     Route::get('/package/create/{prod}/{ver}', 'PackageController@create');
 });
