@@ -9,7 +9,7 @@ class SendTelegramMessageCommand extends Command
 {
     protected $signature = 'app:tg-send {chatId} {message}';
 
-    protected $description = 'Command description';
+    protected $description = 'Отправить сообщение в чат [{chatId} {message}]';
 
     public function handle(): void
     {

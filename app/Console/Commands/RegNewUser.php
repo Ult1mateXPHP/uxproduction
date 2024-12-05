@@ -20,7 +20,7 @@ class RegNewUser extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Системная регистрация пользователя [{username} {password}]';
 
     /**
      * Execute the console command.
