@@ -79,11 +79,16 @@ class TelegramController extends Controller
                         break;
 
                     case 'me':
+                        if($user->is_admin) {
+                            $role = 'Администратор';
+                        } else {
+                            $role = 'Пользователь';
+                        }
                         $this->response(
                             $this->withButtons(
                                 $this->builder(
                                     "ID: " . $user->id . "\n" .
-                                    "Пользователь: " . $user->name . "\n",
+                                    $role.": " . $user->name . "\n",
                                     $chatId),
                                 [
                                     ['text' => 'Скачать моды', 'command' => 'mods'],
@@ -95,21 +100,29 @@ class TelegramController extends Controller
 
                     case 'documents':
                         $documents = DocumentEntity::query()->where('user_id', $user->id)->get();
-                        $this->response(
-                            $this->builder('Ваши документы:', $chatId)
-                        );
-
-                        foreach($documents as $document) {
+                        if(count($documents) > 0) {
                             $this->response(
-                                $this->builder(
-                                    "Тип: ".$document->type."\n".
-                                    "Название: ".$document->name."\n".
-                                    "Содержание: ".$document->data."\n".
-                                    "Дата создания: ".$document->created_at."\n".
-                                    "Дата изменения: ".$document->updated_at."\n",
-                                $chatId)
+                                $this->builder('Ваши документы:', $chatId)
+                            );
+
+                            foreach ($documents as $document) {
+                                $this->response(
+                                    $this->builder(
+                                        "<b>Тип:</b> " . $document->type . "\n" .
+                                        "<b>Название:</b> " . $document->name . "\n" .
+                                        "<b>Содержание:</b> " . $document->data . "\n" .
+                                        "<b>Дата создания:</b> " . $document->created_at . "\n" .
+                                        "<b>Дата изменения:</b> " . $document->updated_at . "\n" .
+                                        "<b>Выдано:</b> ". $document->publisher,
+                                        $chatId)
+                                );
+                            }
+                        } else {
+                            $this->response(
+                                $this->builder('У вас нет документов', $chatId)
                             );
                         }
+                        break;
 
                     case 'mods':
                         $this->response(
@@ -175,7 +188,7 @@ class TelegramController extends Controller
         $data = [
             'text' => $text,
             'chat_id' => $chatId,
-            'parse_mode' => 'markdown'
+            'parse_mode' => 'HTML'
         ];
         return $data;
     }
