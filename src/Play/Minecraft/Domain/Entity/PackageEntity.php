@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PackageEntity extends Model
 {
-    protected $connection = 'play';
-
     protected $table = 'packages';
 
     public $timestamps = false;

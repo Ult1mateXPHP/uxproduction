@@ -109,13 +109,13 @@ class TelegramController extends Controller
 
                     case 'mods kz latest':
                         $this->response(
-                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/kz/latest', $chatId)
+                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/KZ/latest', $chatId)
                         );
                         break;
 
                     case 'mods survival latest':
                         $this->response(
-                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/survival/latest', $chatId)
+                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/Survival/latest', $chatId)
                         );
                         break;
 
