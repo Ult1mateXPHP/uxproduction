@@ -3,14 +3,11 @@
 namespace Controllers\Play\Minecraft;
 
 use App\Http\Controllers\Controller;
-use Application\Play\Minecraft\PackageApi;
-use Application\Play\Minecraft\ProductionApi;
-use Domain\Play\Minecraft\Repository\PackageRepository;
+use Domain\Play\Minecraft\Entity\DocumentEntity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
-use Infrastructure\Play\Minecraft\Storage\PackageDriver;
 
 class TelegramController extends Controller
 {
@@ -89,11 +86,30 @@ class TelegramController extends Controller
                                     "Пользователь: " . $user->name . "\n",
                                     $chatId),
                                 [
-                                    ['text' => 'Скачать моды', 'command' => 'mods']
+                                    ['text' => 'Скачать моды', 'command' => 'mods'],
+                                    ['text' => 'Документы', 'command' => 'documents'],
                                 ]
                             ),
                         );
                         break;
+
+                    case 'documents':
+                        $documents = DocumentEntity::query()->where('user_id', $user->id)->get();
+                        $this->response(
+                            $this->builder('Ваши документы:', $chatId)
+                        );
+
+                        foreach($documents as $document) {
+                            $this->response(
+                                $this->builder(
+                                    "Тип: ".$document->type."\n".
+                                    "Название: ".$document->name."\n".
+                                    "Содержание: ".$document->data."\n".
+                                    "Дата создания: ".$document->created_at."\n".
+                                    "Дата изменения: ".$document->updated_at."\n",
+                                $chatId)
+                            );
+                        }
 
                     case 'mods':
                         $this->response(
