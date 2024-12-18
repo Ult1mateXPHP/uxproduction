@@ -6,9 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DocumentEntity extends Model
 {
-    protected $connection = 'play';
-
-    protected $table = 'document';
+    protected $table = 'documents';
 
     public $timestamps = false;
 
@@ -17,5 +15,6 @@ class DocumentEntity extends Model
         'name',
         'user_id',
         'data',
+        'publisher'
     ];
 }
