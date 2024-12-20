@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Config;
 | API Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/', function () {
+    return response()->json(['success' => true]);
+});
 
 Route::group(['namespace' => 'Controllers\Root', 'domain' => Config::get('app.url')], function()
 {
