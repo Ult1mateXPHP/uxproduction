@@ -3,7 +3,7 @@
 namespace Controllers\Play\Minecraft;
 
 use Application\Play\Minecraft\ProductionApi;
-use App\Root\Infrastructure\Validator\TokenValidate;
+use Infrastructure\Root\Validator\TokenValidate;
 use Illuminate\Support\Facades\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 

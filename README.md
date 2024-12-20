@@ -2,6 +2,8 @@
 
 Simple CRM system
 
+<h3>!![DEPRECATED]!!</h3>
+
 <hr>
 
 <h3>Requirements</h3>

@@ -4,7 +4,7 @@ namespace Controllers\Play\Minecraft;
 
 use Application\Play\Minecraft\RconApi;
 use Domain\Play\Minecraft\Entity\RconMethodEntity;
-use App\Root\Infrastructure\Validator\TokenValidate;
+use Infrastructure\Root\Validator\TokenValidate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
