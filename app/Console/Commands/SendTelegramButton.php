@@ -20,7 +20,7 @@ class SendTelegramButton extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Отправить тестовую кнопку [{chatId} {message} {buttonText} {buttonCommand}]';
 
     /**
      * Execute the console command.

@@ -19,7 +19,7 @@ class TelegramSendBroadcast extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Обьявление в чате [{message}]';
 
     /**
      * Execute the console command.

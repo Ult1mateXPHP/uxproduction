@@ -4,14 +4,17 @@ namespace Domain\Play\Minecraft\Entity;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PackageEntity extends Model
+class DocumentEntity extends Model
 {
-    protected $table = 'packages';
+    protected $table = 'documents';
 
     public $timestamps = false;
 
     protected $fillable = [
-        'prod',
-        'build'
+        'type',
+        'name',
+        'user_id',
+        'data',
+        'publisher'
     ];
 }

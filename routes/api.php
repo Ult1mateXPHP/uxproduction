@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Config;
 | API Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/', function () {
+    return response()->json(['success' => true]);
+});
 
 Route::group(['namespace' => 'Controllers\Root', 'domain' => Config::get('app.url')], function()
 {
@@ -27,6 +30,7 @@ Route::group(['namespace' => 'Controllers\Play\Minecraft', 'domain' => 'play.'.C
     Route::get('/package/download/', function () {
         return response(null, 400);
     })->name('package.download.reference');
+
     Route::get('/package/download/{prod}/{build}', 'PackageController@download');
     Route::get('/package/create/{prod}/{ver}', 'PackageController@create');
 });

@@ -3,14 +3,11 @@
 namespace Controllers\Play\Minecraft;
 
 use App\Http\Controllers\Controller;
-use Application\Play\Minecraft\PackageApi;
-use Application\Play\Minecraft\ProductionApi;
-use Domain\Play\Minecraft\Repository\PackageRepository;
+use Domain\Play\Minecraft\Entity\DocumentEntity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
-use Infrastructure\Play\Minecraft\Storage\PackageDriver;
 
 class TelegramController extends Controller
 {
@@ -82,17 +79,49 @@ class TelegramController extends Controller
                         break;
 
                     case 'me':
+                        if($user->is_admin) {
+                            $role = 'Администратор';
+                        } else {
+                            $role = 'Пользователь';
+                        }
                         $this->response(
                             $this->withButtons(
                                 $this->builder(
                                     "ID: " . $user->id . "\n" .
-                                    "Пользователь: " . $user->name . "\n",
+                                    $role.": " . $user->name . "\n",
                                     $chatId),
                                 [
-                                    ['text' => 'Скачать моды', 'command' => 'mods']
+                                    ['text' => 'Скачать моды', 'command' => 'mods'],
+                                    ['text' => 'Документы', 'command' => 'documents'],
                                 ]
                             ),
                         );
+                        break;
+
+                    case 'documents':
+                        $documents = DocumentEntity::query()->where('user_id', $user->id)->get();
+                        if(count($documents) > 0) {
+                            $this->response(
+                                $this->builder('Ваши документы:', $chatId)
+                            );
+
+                            foreach ($documents as $document) {
+                                $this->response(
+                                    $this->builder(
+                                        "<b>Тип:</b> " . $document->type . "\n" .
+                                        "<b>Название:</b> " . $document->name . "\n" .
+                                        "<b>Содержание:</b> " . $document->data . "\n" .
+                                        "<b>Дата создания:</b> " . $document->created_at . "\n" .
+                                        "<b>Дата изменения:</b> " . $document->updated_at . "\n" .
+                                        "<b>Выдано:</b> ". $document->publisher,
+                                        $chatId)
+                                );
+                            }
+                        } else {
+                            $this->response(
+                                $this->builder('У вас нет документов', $chatId)
+                            );
+                        }
                         break;
 
                     case 'mods':
@@ -109,13 +138,13 @@ class TelegramController extends Controller
 
                     case 'mods kz latest':
                         $this->response(
-                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/kz/latest', $chatId)
+                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/KZ/latest', $chatId)
                         );
                         break;
 
                     case 'mods survival latest':
                         $this->response(
-                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/survival/latest', $chatId)
+                            $this->builder('Ваша ссылка для скачивания: '.route('package.download.reference').'/Survival/latest', $chatId)
                         );
                         break;
 
@@ -159,7 +188,7 @@ class TelegramController extends Controller
         $data = [
             'text' => $text,
             'chat_id' => $chatId,
-            'parse_mode' => 'markdown'
+            'parse_mode' => 'HTML'
         ];
         return $data;
     }
